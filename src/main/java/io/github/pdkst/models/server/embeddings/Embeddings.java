@@ -1,6 +1,7 @@
 package io.github.pdkst.models.server.embeddings;
 
-import java.util.List;
+import io.github.pdkst.models.openai.api.embeddings.request.EmbeddingsRequest;
+import io.github.pdkst.models.openai.api.embeddings.response.EmbeddingsResponse;
 
 /**
  * @author pdkst
@@ -11,8 +12,8 @@ public interface Embeddings {
     /**
      * embedding the texts
      *
-     * @param texts texts
+     * @param request texts
      * @return vectors
      */
-    EmbeddingsResult embeddings(List<String> texts);
+    EmbeddingsResponse embeddings(EmbeddingsRequest request);
 }

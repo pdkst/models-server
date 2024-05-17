@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.List;
-
 /**
  * @author pdkst
  * @since 2024/04/20
@@ -21,12 +18,10 @@ import java.util.List;
 @RequestMapping("/v1")
 @RequiredArgsConstructor
 public class EmbeddingsController {
-    private final Embeddings embeddings;
-    private final EmbeddingResultAdapter embeddingResultAdapter;
+    private final EmbeddingsAdapter embeddingsAdapter;
 
     @PostMapping("/embeddings")
-    public Object embeddings(@RequestBody EmbeddingsRequest request) {
-        final EmbeddingsResult embeddingsResult = embeddings.embeddings(request.getInput());
-        return embeddingResultAdapter.adapt(embeddingsResult);
+    public EmbeddingsResponse embeddings(@RequestBody EmbeddingsRequest request) throws Exception {
+        return embeddingsAdapter.embeddings(request);
     }
 }

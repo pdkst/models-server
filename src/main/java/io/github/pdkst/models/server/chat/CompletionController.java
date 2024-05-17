@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 /**
  * @author pdkst
  * @since 2023/12/31
@@ -19,11 +17,11 @@ import java.io.IOException;
 @RequestMapping("/v1/chat")
 @RequiredArgsConstructor
 public class CompletionController {
-    private final FileOpenaiChatCompletion chatCompletion;
+    private final ChatCompletionsAdapter chatCompletionsAdapter;
 
     @PostMapping(value = "/completions")
     public Object chatCompletion(@RequestBody CompletionRequest request) throws Exception {
-        return chatCompletion.completion(request);
+        return chatCompletionsAdapter.completion(request);
     }
 
 }

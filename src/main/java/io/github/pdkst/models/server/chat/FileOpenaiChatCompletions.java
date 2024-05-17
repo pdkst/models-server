@@ -8,9 +8,7 @@ import io.github.pdkst.models.server.common.JsonFileResolver;
 import io.github.pdkst.models.server.common.JsonLineFileResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 
@@ -21,25 +19,16 @@ import java.io.IOException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FileOpenaiChatCompletion {
+public class FileOpenaiChatCompletions implements ChatCompletions {
     private final JacksonMapper mapper = JacksonMapper.getInstance();
 
-    public Object completion(CompletionRequest request) throws IOException {
-        final Boolean stream = request.getStream();
-        if (BooleanUtils.isFalse(stream)) {
-            return completionObject(request);
-        } else {
-            final SseEmitter emitter = new SseEmitter();
-            completionStream(request, new EmitterStreamEventListener(emitter));
-            return emitter;
-        }
-    }
-
+    @Override
     public CompletionResponse completionObject(CompletionRequest request) throws IOException {
         final JsonFileResolver resolver = new JsonFileResolver("/out/chat/chat_completion_example.json", mapper);
         return resolver.resolve(CompletionResponse.class);
     }
 
+    @Override
     public void completionStream(CompletionRequest request,
                                  StreamEventListener listener) throws IOException {
         final JsonLineFileResolver resolver = new JsonLineFileResolver("/out/chat/stream_chat_completion.jsonl");
