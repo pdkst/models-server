@@ -1,5 +1,6 @@
 package io.github.pdkst.models.server.embeddings;
 
+import io.github.pdkst.models.openai.api.common.Usage;
 import io.github.pdkst.models.openai.api.embeddings.response.EmbeddingObject;
 import io.github.pdkst.models.openai.api.embeddings.response.EmbeddingsResponse;
 import org.springframework.stereotype.Component;
@@ -19,33 +20,45 @@ import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 public class OpenaiEmbeddingResultAdapter implements EmbeddingResultAdapter {
     @Override
     public Object adapt(EmbeddingsResult result) {
-        final EmbeddingsResponse response = toOpenaiResponse(result.getVector());
-        response.setUsage(response.getUsage());
+        final EmbeddingsResponse response = buildOpenaiResponse(result.getObjects());
+        final Usage usage = buildOpenaiUsage(result.getUsage());
+        response.setUsage(usage);
         return response;
     }
 
-    private EmbeddingsResponse toOpenaiResponse(List<List<Float>> vectorList) {
+    private EmbeddingsResponse buildOpenaiResponse(List<EmbeddingData> vectorList) {
         final EmbeddingsResponse response = new EmbeddingsResponse();
         response.setObject("list");
         response.setModel("text-embedding-ada-002");
         if (isEmpty(vectorList)) {
             return response;
         }
-        List<EmbeddingObject> embeddingObjects = new ArrayList<>();
-        int i = 0;
-        for (List<Float> vector : vectorList) {
-            final EmbeddingObject embeddingObject = buildEmbeddingObject(i++, vector);
-            embeddingObjects.add(embeddingObject);
-        }
+        final List<EmbeddingObject> embeddingObjects = buildOpenaiEmbeddingObjects(vectorList);
         response.setData(embeddingObjects);
         return response;
     }
 
-    private EmbeddingObject buildEmbeddingObject(int i, List<Float> vector) {
+    private List<EmbeddingObject> buildOpenaiEmbeddingObjects(List<EmbeddingData> vectorList) {
+        List<EmbeddingObject> embeddingObjects = new ArrayList<>();
+        for (EmbeddingData data : vectorList) {
+            final EmbeddingObject embeddingObject = buildOpenaiEmbeddingObject(data);
+            embeddingObjects.add(embeddingObject);
+        }
+        return embeddingObjects;
+    }
+
+    private EmbeddingObject buildOpenaiEmbeddingObject(EmbeddingData data) {
         final EmbeddingObject embeddingObject = new EmbeddingObject();
-        embeddingObject.setIndex(i);
-        embeddingObject.setEmbedding(vector);
+        embeddingObject.setIndex(data.getIndex());
+        embeddingObject.setEmbedding(data.getEmbedding());
         embeddingObject.setObject("embedding");
         return embeddingObject;
+    }
+
+    private Usage buildOpenaiUsage(EmbeddingUsage raw) {
+        Usage usage = new Usage();
+        usage.setPrompt_tokens(raw.getTotalTokens());
+        usage.setTotal_tokens(raw.getTotalTokens());
+        return usage;
     }
 }

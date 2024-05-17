@@ -1,6 +1,5 @@
 package io.github.pdkst.models.server.embeddings;
 
-import io.github.pdkst.models.openai.api.common.Usage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +14,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmbeddingsResult {
-    private List<List<Float>> vector;
-    private Usage usage;
+    /**
+     * 嵌入向量
+     */
+    private List<EmbeddingData> objects;
+    /**
+     * 使用情况
+     */
+    private EmbeddingUsage usage;
 }

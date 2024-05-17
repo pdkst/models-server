@@ -32,11 +32,6 @@ public class EmitterStreamEventListener implements StreamEventListener {
 
     @Override
     public void onClosed() {
-        try {
-            emitter.send("[DONE]");
-        } catch (IOException e) {
-            // ignore
-        }
         emitter.complete();
     }
 

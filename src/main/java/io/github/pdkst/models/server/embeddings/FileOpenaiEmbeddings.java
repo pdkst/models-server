@@ -1,6 +1,7 @@
 package io.github.pdkst.models.server.embeddings;
 
 import io.github.pdkst.models.json.JacksonMapper;
+import io.github.pdkst.models.openai.api.common.Usage;
 import io.github.pdkst.models.openai.api.embeddings.response.EmbeddingObject;
 import io.github.pdkst.models.openai.api.embeddings.response.EmbeddingsResponse;
 import io.github.pdkst.models.server.common.JsonFileResolver;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,19 +34,25 @@ public class FileOpenaiEmbeddings implements Embeddings {
     }
 
     private EmbeddingsResult mapToResult(EmbeddingsResponse response) {
-        final List<List<Float>> floatList = toFloatList(response);
-        return new EmbeddingsResult(floatList, response.getUsage());
+        final List<EmbeddingData> objects = this.buildDataList(response.getData());
+        final EmbeddingUsage usage = this.buildUsage(response.getUsage());
+        return new EmbeddingsResult(objects, usage);
     }
 
     @NotNull
-    private List<List<Float>> toFloatList(EmbeddingsResponse response) {
-        final List<EmbeddingObject> data = response.getData();
-        if (data == null) {
+    private List<EmbeddingData> buildDataList(List<EmbeddingObject> objects) {
+        if (objects == null) {
             return Collections.emptyList();
         }
-        return data
-                .stream()
-                .map(EmbeddingObject::getEmbedding)
-                .toList();
+        List<EmbeddingData> list = new ArrayList<>();
+        for (EmbeddingObject datum : objects) {
+            List<Float> embedding = datum.getEmbedding();
+            list.add(new EmbeddingData(datum.getIndex(), embedding));
+        }
+        return list;
+    }
+
+    private EmbeddingUsage buildUsage(Usage usage) {
+        return new EmbeddingUsage(usage.getTotal_tokens());
     }
 }
